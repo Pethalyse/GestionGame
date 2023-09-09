@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -44,7 +45,10 @@ public class Villageois : MonoBehaviour
     private NavMeshAgent navigation;
     private GameObject target;
 
-    
+    private TextMeshPro goVie;
+    private TextMeshPro goFaim;
+    private TextMeshPro goSoif;
+
     //objets
     [SerializeField] private GameObject lit;
     private List<Objet> inventaire = new List<Objet>();
@@ -89,6 +93,29 @@ public class Villageois : MonoBehaviour
         state = Etat.Reveille;
 
         inventaire.Add(new Boisson(50, "Gourde fraiche"));
+
+        foreach(Transform child in transform)
+        {
+            if(child.gameObject.name == "nom")
+            {
+                child.gameObject.GetComponent<TextMeshPro>().text = nom;
+            }
+
+            if (child.gameObject.name == "vie")
+            {
+                goVie = child.gameObject.GetComponent<TextMeshPro>();
+            }
+
+            if (child.gameObject.name == "faim")
+            {
+                goFaim = child.gameObject.GetComponent<TextMeshPro>();
+            }
+
+            if (child.gameObject.name == "soif")
+            {
+                goSoif = child.gameObject.GetComponent<TextMeshPro>();
+            }
+        }
     }
 
     // Update is called once per frame
@@ -201,6 +228,10 @@ public class Villageois : MonoBehaviour
         }
 
         actions();
+
+        goVie.text = vie.ToString();
+        goFaim.text = faim.ToString();
+        goSoif.text = soif.ToString();
 
     }
 
