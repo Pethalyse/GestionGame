@@ -1,18 +1,14 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-public class objet : MonoBehaviour
+﻿public abstract class Objet
 {
-    // Start is called before the first frame update
-    void Start()
+    protected int valeur;
+    protected string nom;
+
+    public int getValeur() { return valeur; }
+    public string getNom() { return nom; }
+
+    public override string ToString()
     {
-        
+        return nom + " : " + valeur;
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }
