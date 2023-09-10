@@ -26,10 +26,10 @@ public class Villageois : MonoBehaviour
     private int vieMax = 100;
     private int vie;
 
-    private int faim = 100;
     private int faimMax = 100;
+    private int faim = 100;
     private float faimTime = 0;
-    private float cdFaim = 6*Config_world.getHeure_conf();
+    private float cdFaim = 4*Config_world.getHeure_conf();
     private float histoFaim = 0;
 
     private int soif = 100;
@@ -89,6 +89,8 @@ public class Villageois : MonoBehaviour
     void Start()
     {
         vie = vieMax;
+        faim = faimMax;
+        soif = soifMax;
 
         state = Etat.Reveille;
 
@@ -187,13 +189,13 @@ public class Villageois : MonoBehaviour
         //GESTION SOIF
         if (state == Etat.Endormi)
         {
-            if (Mathf.Round((Time.time - faimTime) * 1000) / 1000 / Config_world.getMinute_conf() > 30 && faim > 0)
+            if (Mathf.Round((Time.time - faimTime) * 1000) / 1000 / Config_world.getMinute_conf() > 50 && faim > 0)
             {
                 addFaim(-1);
                 faimTime = Time.time;
             }
 
-            if (Mathf.Round((Time.time - soifTime) * 1000) / 1000 / (Config_world.getMinute_conf()) > 10 && soif > 0)
+            if (Mathf.Round((Time.time - soifTime) * 1000) / 1000 / (Config_world.getMinute_conf()) > 30 && soif > 0)
             {
                 addSoif(-1);
                 soifTime = Time.time;
@@ -201,13 +203,13 @@ public class Villageois : MonoBehaviour
         }
         else
         {
-            if (Mathf.Round((Time.time - faimTime) * 1000) / 1000 / Config_world.getMinute_conf() > 15 && faim > 0)
+            if (Mathf.Round((Time.time - faimTime) * 1000) / 1000 / Config_world.getMinute_conf() > 25 && faim > 0)
             {
                 addFaim(-1);
                 faimTime = Time.time;
             }
 
-            if (Mathf.Round((Time.time - soifTime) * 1000) / 1000 / (Config_world.getMinute_conf()) > 5 && soif > 0)
+            if (Mathf.Round((Time.time - soifTime) * 1000) / 1000 / (Config_world.getMinute_conf()) > 15 && soif > 0)
             {
                 addSoif(-1);
                 soifTime = Time.time;
@@ -254,13 +256,13 @@ public class Villageois : MonoBehaviour
             }
 
             //MANGER
-            if (state == Etat.Reveille && Mathf.Abs(histoFaim - Time.time) >= cdFaim && faimMax - faim >= 30)
+            if (state == Etat.Reveille && Mathf.Abs(histoFaim - Time.time) >= cdFaim)
             {
                 manger();
             }
 
             //BOIRE
-            if (state == Etat.Reveille && Mathf.Abs(histoSoif - Time.time) >= cdSoif && soifMax - soif >= 30)
+            if (state == Etat.Reveille && Mathf.Abs(histoSoif - Time.time) >= cdSoif)
             {
                 boire();
             }
@@ -334,25 +336,27 @@ public class Villageois : MonoBehaviour
     protected void manger()
     {
         Nourriture nourriture = null;
-        foreach (Nourriture item in inventaire)
+        foreach (Utilisable item in inventaire)
         {
             if (item.GetType() == typeof(Nourriture))
             {
-                if (nourriture == null)
+
+                if (faimMax - faim >= 30)
                 {
-                    nourriture = item;
+                    if (nourriture == null)
+                    {
+                        nourriture = (Nourriture)item;
+                    }
+                    else if (item.getValeur() > nourriture.getValeur())
+                    {
+                        nourriture = (Nourriture)item;
+                    }
+
                 }
-                else
+                else if (item.getValeur() == faimMax - faim)
                 {
-                    if (item.getValeur() > nourriture.getValeur())
-                    {
-                        nourriture = item;
-                    }
-                    else if (item.getValeur() == faimMax - faim)
-                    {
-                        nourriture = item;
-                        break;
-                    }
+                    nourriture = (Nourriture)item;
+                    break;
                 }
             }
         }
@@ -361,7 +365,7 @@ public class Villageois : MonoBehaviour
         {
             inventaire.Remove(nourriture);
             faim += nourriture.consommation();
-            if(faim > 100) { faim = 100; }
+            if(faim > faimMax) { faim = faimMax; }
             histoFaim = Time.time;
             enAction(0, 0, 0, 0, 0, 1);
 
@@ -377,25 +381,25 @@ public class Villageois : MonoBehaviour
     protected void boire()
     {
         Boisson boisson = null;
-        foreach(Boisson item in inventaire)
+        foreach(Utilisable item in inventaire)
         {
             if(item.GetType() == typeof(Boisson))
             {
-                if(boisson == null)
+                if(soifMax - soif >= 30)
                 {
-                    boisson = item;
+                    if (boisson == null)
+                    {
+                        boisson = (Boisson) item;
+                    }else if (item.getValeur() > boisson.getValeur())
+                    {
+                        boisson = (Boisson) item;
+                    }
+
                 }
-                else
+                else if (item.getValeur() == soifMax - soif)
                 {
-                    if(item.getValeur() > boisson.getValeur())
-                    {
-                        boisson = item;
-                    }
-                    else if (item.getValeur() == soifMax - soif)
-                    {
-                        boisson = item;
-                        break;
-                    }
+                    boisson = (Boisson) item;
+                    break;
                 }
             }
         }
@@ -404,7 +408,7 @@ public class Villageois : MonoBehaviour
         {
             inventaire.Remove(boisson);
             soif += boisson.consommation();
-            if(soif > 100) { soif = 100; }
+            if(soif > soifMax) { soif = soifMax; }
             histoSoif = Time.time;
             enAction(0, 0, 0, 0, 0, 1);
 
